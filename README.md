@@ -227,3 +227,87 @@ if ( isLoading ){
 <Text>{ peliculasEnCine[4]?.title }</Text>
 ````
 ----
+### 4.- Mostrar Poster de Películas
+En este punto se hará la construcción de un componente nuevo que recibirá la película y la mostrará como una imagen.
+
+Pasos a Seguir:
+* Creación de nuevo componente que mostrará el poster en `components/MoviePoster.tsx`.
+* Modificamos __HomeScreen__ para entregar la pelicula que desamos ver en el poster del nuevo componente.
+
+En `components/MoviePoster.tsx`
+* Importamos diferentes elementos como React, elementos de React Native y `Movie` que es una interface para el tipado.
+````
+import React from 'react'
+import { View, Image, StyleSheet } from 'react-native';
+import { Movie } from '../interface/movieInterface';
+````
+* Creamos una interface que recibirá nuestro nuevo componente.
+````
+interface Props {
+  movie: Movie
+}
+````
+* Se crea el componente __MoviePoster__ que recibe por parametros `movie`.
+* Extraemos el path que nos recomienda la [documentación](https://developers.themoviedb.org/3/getting-started/images) para mostrar las imagenes.
+  * Creamos una constante que recibe el path, ademas le pasamos el valor `movie.poster_path` que viene de la API.
+* rentornamos 2 `View` y un `Image` que se mostrará la imagen.
+````
+export const MoviePoster = ({ movie }: Props) => {
+
+    const uri = `https://image.tmdb.org/t/p/w500${ movie.poster_path }`
+
+  return (
+    <View style={{
+        width: 300,
+        height: 420,
+    }}>
+        <View style={ styles.imageContainer }>
+            <Image 
+                source={{ uri }}
+                style={ styles.image }
+            />
+        </View>
+    </View>
+  )
+}
+````
+* Creamos un `StyleSheet` para estilizar el componente.
+  * Dedicamos un estilo personal a la imagen con bordes.
+  * Gracias a [Generador de Sombras en RN](https://ethercreative.github.io/react-native-shadow-generator/) agregamos unas sombras al contenedor de la imagen, para darle un toque estetico, ademas de unos bordes redondeados.
+````
+const styles = StyleSheet.create({
+    image: {
+        flex: 1,
+        borderRadius: 18,
+    },
+    imageContainer:{
+        flex: 1,
+        shadowColor: "#000",
+        borderRadius: 18,
+        shadowOffset: {
+        	width: 0,
+        	height: 10,
+        },
+        shadowOpacity: 0.24,
+        shadowRadius: 7,
+
+        elevation: 10,
+    }
+});
+````
+En `screens/HomeScreen.tsx`
+* Importamos el Hook `useSafeAreaInsets`, para luego implementarlo, desestructurando el `top`.
+````
+const { top } = useSafeAreaInsets();
+````
+* En el return agregamos un margen, ademas de implementar el componente que recién mostramos y le enviamos una propiedad llamada `movie`
+````
+return (
+  <View style={{ marginTop: top + 20 }}>
+      <MoviePoster
+        movie={ peliculasEnCine[5] }
+      />
+  </View>
+)
+````
+----
