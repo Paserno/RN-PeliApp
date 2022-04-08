@@ -402,3 +402,64 @@ return (
 </View>
 ````
 ----
+### 7.- Componente HorizontalSlider
+En este punto se creará un componente que será llamado por __HomeScreen__, para mostrar los carruseles pequeños.
+
+Pasos a seguir: 
+* Copiar `View` que tiene el `Text` y `FlatList` que esta en __HomeScreen__ para crear un componente totalmente nuevo, para luego llamarlo por el mismo componente que se extrajo.
+* Mandar argumentos necesarios a __HorizontalSlider__ en __HomeScreen__. 
+
+En `components/HorizontalSlider.tsx`
+* Se importa React, elementos de React Native, `Movie` que viene de la interface de API y __MoviePoster__ que tiene el componente Poster.
+````
+import React from 'react'
+import { View, Text, FlatList } from 'react-native';
+import { Movie } from '../interface/movieInterface';
+
+import { MoviePoster } from './MoviePoster';
+````
+* Creamos una nueva interface de las Props que recibirá nuestro nuevo componente.
+````
+interface Props{
+  title?: string;
+  movies: Movie[];
+}
+````
+* Creamos nuestra componente __HorizontalSlider__, que recíbe por parametros `title` y `movies` le pasamos la interface.
+* En el return del componente tenemos el `View` con un estilo con condición, en el caso de recibir el `title` se verá en un tamaño de 260 en el caso que no 220.
+* Creamos otra condición por si viene el titulo mostrarlo, esto lo hacemos con lógica booleana.
+* Copiamos el mismo `<FlatList />` de la paso anterior, con la diferencia que le pasaremos en `data` la propiedad que recíbe el componente `movies`.
+````
+export const HorizontalSlider = ({ title, movies}: Props) => {
+  return (
+    <View style={{
+        height: ( title ) ? 260 : 220
+    }}>
+
+        {
+            title && <Text style={{ fontSize: 30, fontWeight: 'bold', marginLeft: 10}}>{ title }</Text>
+        }
+        
+        <FlatList 
+          data={ movies }
+          renderItem={ ({ item }: any) => (
+            <MoviePoster movie={ item } height={ 200 } width={ 140 } />
+          )}
+          keyExtractor={ (item) => item.id.toString() }
+          horizontal={ true }
+          showsHorizontalScrollIndicator={ false }
+        />
+    </View>
+  )
+}
+````
+* Importamos el componente __HorizontalSlider__.
+````
+...
+import { HorizontalSlider } from '../components/HorizontalSlider';
+````
+* Finalmente invocamos el componente __HorizontalSlider__ para pasarle por argumento el `title` y `movies` de esta manera se encapsular el código que antes se tenia en un componente y luego invocarlo cuantas veces sea necesario. 
+````
+<HorizontalSlider title="En cine" movies={ peliculasEnCine } />
+````
+----
