@@ -345,3 +345,60 @@ const { width: windowWidth } = Dimensions.get('window');
 )
 ````
 ----
+### 6.- FlatList de Películas
+En este punto se mostrará un listado de películas populares.
+
+Pasos a Seguir:
+* Se le agregan propiedades que recibirá el componente __MoviePoster__.
+* Implementar `FlatList` con las peliculas en __HomeScreen__.
+
+En `components/MoviePoster.tsx`
+* Adaptamos la interface del componente __MoviePoster__.
+````
+interface Props {
+    movie: Movie;
+    height?: number;
+    width?: number;
+}
+````
+* Agregamos propiedades nuevas y ademas dejamos valores por defecto.
+````
+export const MoviePoster = ({ movie, height = 420, width = 300 }: Props) => {...}
+````
+* Modificamos el estilo del primer `View`, agregandole 8 de margen horizontal.
+````
+<View style={{
+  width,
+  height,
+  marginHorizontal: 8
+}}>
+````
+En `screens/HomeScreen.tsx`
+* Encrerramos todo el contenido del __HomeScreen__ en un `<ScrollView>`. (_no olvidar importarlo_)
+````
+return (
+  <ScrollView>
+    ...
+  </ScrollView>
+````
+* Encerramos en un `View` con algunos estilos para identificar el tamaño y agregamos un texto.
+* Creamos el Primer `<FlatList />` y le agregamos algunas propiedades muy similar al `<Carousel />`.
+  * `data` al igual que el carrusel, `renderItem` con la unica diferencia que mandamos propiedades de `height` y `width`.
+  * Agregamos una propiedad nueva `keyExtractor` para identificar el componente renderizado.
+  * Agregamos la propiedad `horizontal` para que la lista se vea horizontalmente y eliminamos el scroll.
+````
+<View style={{ backgroundColor: 'red', height: 260}}>
+  <Text style={{ fontSize: 30, fontWeight: 'bold'}}>En Cine</Text>
+
+  <FlatList 
+    data={ peliculasEnCine }
+    renderItem={ ({ item }: any) => (
+      <MoviePoster movie={ item } height={ 200 } width={ 140 } />
+    )}
+    keyExtractor={ (item) => item.id.toString() }
+    horizontal={ true }
+    showsHorizontalScrollIndicator={ false }
+  />
+</View>
+````
+----
