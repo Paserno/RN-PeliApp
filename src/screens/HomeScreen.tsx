@@ -1,9 +1,15 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
+// import { CommonActions, useNavigation } from '@react-navigation/native';
 import React from 'react'
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import Carousel from 'react-native-snap-carousel';
+
 import { useMovies } from '../hooks/useMovies';
 import { MoviePoster } from '../components/MoviePoster';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Sacar las Dimenciones de la pantalla, luego desestructuramos el ancho de esta.
+const { width: windowWidth } = Dimensions.get('window');
 
 export const HomeScreen = () => {
 
@@ -19,10 +25,18 @@ export const HomeScreen = () => {
   }
 
   return (
-    <View style={{ marginTop: top + 20 }}>
-        <MoviePoster
-          movie={ peliculasEnCine[5] }
+    <View style={{ marginTop: top + 10 }}>
+
+      <View style={{ height: 440}}>
+        <Carousel 
+          data={ peliculasEnCine }
+          renderItem={ ({ item }: any) => <MoviePoster movie={ item }/> }
+          sliderWidth={ windowWidth }
+          itemWidth={ 300 }
         />
+
+      </View>
+
     </View>
   )
 }

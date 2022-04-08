@@ -8,7 +8,7 @@ Elementos Utilizados:
 * __[React Navigation](https://reactnavigation.org/docs/getting-started)__
   * __[Stack Navigation](https://reactnavigation.org/docs/stack-navigator)__
 * __[Axios](https://yarnpkg.com/package/axios)__
-
+* __[RN Snap Carousel](https://github.com/meliorence/react-native-snap-carousel)__
 
 
 
@@ -307,6 +307,40 @@ return (
       <MoviePoster
         movie={ peliculasEnCine[5] }
       />
+  </View>
+)
+````
+----
+### 5.- Carrusel de Tarjeta
+En este punto se instala un carrusel para mostrar las tarjetas dinamicamente.
+
+Pasos a Seguir:
+* Importar __[RN Snap Carousel](https://github.com/meliorence/react-native-snap-carousel)__
+* Modificamos el componente HomeScreen para mostrar el carrusel.
+
+En `screens/HomeScreen.tsx`
+* Se importa `Dimensions`, para luego desestructurar la dimensión del dispositivo, específicamente el ancho.
+````
+const { width: windowWidth } = Dimensions.get('window');
+````
+* Creamos un nuevo `View` para el carrusel dandole una altura mayor.
+* El carrusel lo importamos, para luego darle algunas propiedades.
+  * `data` le pasamos `peliculasEnCine`.
+  * `renderItem` Le pasamos el componente que creamos para mostrar los poster, pasandole la propiedad `item`.
+  * `sliderWidth` le pasamos el ancho del dispositivo.
+  * `itemWidth` le pasamos unos 300 para que se vea bien.
+````
+ return (
+  <View style={{ marginTop: top + 10 }}>
+
+    <View style={{ height: 440}}>
+      <Carousel 
+        data={ peliculasEnCine }
+        renderItem={ ({ item }: any) => <MoviePoster movie={ item }/> }
+        sliderWidth={ windowWidth }
+        itemWidth={ 300 }
+      />
+    </View>
   </View>
 )
 ````
