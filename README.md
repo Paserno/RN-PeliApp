@@ -7,6 +7,8 @@ Elementos Utilizados:
 * __[The Movie DB](https://www.themoviedb.org)__ API a consumir.
 * __[React Navigation](https://reactnavigation.org/docs/getting-started)__
   * __[Stack Navigation](https://reactnavigation.org/docs/stack-navigator)__
+* __[Axios](https://yarnpkg.com/package/axios)__
+
 
 
 
@@ -100,5 +102,60 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
   title='ir detalle'
   onPress={ () => navigation.dispatch(CommonActions.navigate({name: 'DetailScreen'})) }
 />
+````
+----
+### 2.- Obtener péliculas - Tipado
+En este punto se instalará __axios__ para utilizar la API, una vez hecha la configuración, se hara el tipado de lo que se reciba.
+
+Pasos a Seguir: 
+* Instalamos __Axios__, para luego realizar la configuración en `api/movieDB.tsx`.
+* Creamos el tipado con la extención __Paste JSON as Conde__ o con __[Quick Type](https://quicktype.io)__.
+* Implementamos un __useEffect__ en `screen/DetailScreen.tsx`.
+
+En `api/movieDB.tsx`
+* Una vez instalado __Axios__, se importa.
+* Para luego crear la configuración de enviando como __baseURL__ la API que será consumida, ademas de algunos parametros como `api_key` que es entregada al momento de registrar una aplicación en __The Movie DB__, y el lenguaje que queremos recibir las respuestas.
+* Finalmente lo exportamos por defecto.
+````
+import axios from 'axios';
+
+const movieDB = axios.create({
+    baseURL: 'https://api.themoviedb.org/3/movie',
+    params: {
+        api_key: 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
+        language: 'es-ES',
+    }
+})
+
+export default movieDB;
+````
+En `interface/movieInterface.tsx`
+* Realizamos la consutla en __Postman__ luego copiamos los resultados para pegarlos en __[Quick Type](https://quicktype.io)__, definimos que lo queremos en __TypeScript__.
+* Una vez hecho lo pegamos, y nos creará una interface con todos los elementos de la petición. 
+````
+export interface MovieDBNowPlaying {
+    dates:         Dates;
+    page:          number;
+    results:       Movie[];
+    total_pages:   number;
+    total_results: number;
+}
+````
+En ``
+* Importamos 3 nuevos elementos en el componente, el __useEffect__, la API `movieDB` y la interface para tener ayuda de tipeo.
+````
+import React, { useEffect } from 'react'
+import movieDB from '../api/movieDB';
+import { MovieDBNowPlaying } from '../interface/movieInterface';
+...
+````
+* Implementamos el useEffect.
+* Creamos el `.get` con la interface, le entregamos la ruta y recibimos respuesta a traves de la impresión por pantalla.
+````
+useEffect(() => {
+    movieDB.get<MovieDBNowPlaying>('/now_playing').then( resp => {
+            console.log(resp.data.results[0].title)
+          })
+  }, [])
 ````
 ----
