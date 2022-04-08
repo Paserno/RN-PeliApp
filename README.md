@@ -159,3 +159,71 @@ useEffect(() => {
   }, [])
 ````
 ----
+### 3.- CustomHook - useMovies
+En este punto se extraerá lo que se tiene en el componente __DetailScreen__ específicamente el useEffect y convertirlo en un CustomHook.
+
+Paso a Seguir:
+* Extraer useEffect de __DetailScreen__ y crear un nuevo customHook en `hooks/useMovies.tsx`.
+* Implementar el CustomHook __useMovie__ en el componente __HomeScreen__.
+
+En `hooks/useMovies.tsx`
+* Importamos hooks de React, la api movieBD y el interface de la api.
+````
+import { useEffect, useState } from 'react';
+import movieDB from '../api/movieDB';
+import { MovieDBNowPlaying, Movie } from '../interface/movieInterface';
+````
+* Creamos el Custom Hook llamado useMovies.
+* Implementamos el primer __useState__ que se encargará de informar si la petición a la API esta lista o no.
+* El segundo hook recibirá la información de las peticiones relacionada a las pleiculas, le establecemos una interface que nos ayudará con el tipado.
+* Creamos una función asíncrona, que recibirá la respuesta de la API, ademas de cambiar el estado del primer __useState__ cuando la función termine.
+* Implementamos un useEffect que llamará la función recién mencionada, cada vez que es renderizado el componente será llamado el useEffect con su función.
+* Finalmenete retornamos los dos useState.
+````
+export const useMovies = () => {
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [peliculasEnCine, setPeliculasEnCine] = useState<Movie[]>([])
+
+    const getMovie = async() => {
+        const resp = await movieDB.get<MovieDBNowPlaying>('/now_playing');
+        setPeliculasEnCine(resp.data.results);
+        
+        setIsLoading( false );
+    }
+    
+    useEffect(() => {
+        getMovie();        
+      }, [])
+
+  return {
+    peliculasEnCine,
+    isLoading
+  }
+}
+````
+En `screens/HomeScreen.tsx`
+* Importamos 2 elementos nuevos `ActivityIndicator` un componente UI de React Native y useMovie el customHook creado.
+````
+...
+import { View, Text, Button, ActivityIndicator } from 'react-native';
+import { useMovies } from '../hooks/useMovies';
+````
+* Implementamos el CustomHook y desestructuramos los elementos del Hook.
+* Creamos una condición, en el caso de tener `isLoading` en true, saldra un indicador de carga circular, que le aplicamos algunos estilos `ActivityIndicator`.
+````
+ const { peliculasEnCine, isLoading } = useMovies();
+
+if ( isLoading ){
+   return (
+     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+       <ActivityIndicator color="purple" size={ 100 }/>
+     </View>
+   )
+}
+````
+* En el return del componente mostramos el titulo de una pelicula.
+````
+<Text>{ peliculasEnCine[4]?.title }</Text>
+````
+----
