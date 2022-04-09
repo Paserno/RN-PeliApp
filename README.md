@@ -613,3 +613,71 @@ const movies = route.params;
 console.log(movies);
 ````
 ----
+### 10.- Diseño inicial de Detalles
+En este punto se creo el diseño inicial que contará el componente __DetailScreen__, iniciando con la imagen y su diseño.
+
+Paso a Seguir:
+* Ya que se tiene las propiedades necesarias para armar el componente, ahora comenzaremos aplicar diseño en `screens/DetailScreen.tsx`.
+
+En `screens/DetailScreen.tsx`
+* Se encerro el contenido del componente en un `<ScrollView>`, ademas de establecer un `<StatusBar />` con la propiedad `translucent` para que la imagen que pongamos llegue hasta el Barra de estado y le agregamos una transparencia.
+* Agregamos `View` que serviran como contenedores, uno para la imagen y otro para el texto con sus estilos. 
+````
+return (
+   <ScrollView>
+     <StatusBar translucent barStyle="light-content" backgroundColor="rgba(0, 0, 0, 0.3)" />
+     <View style={ styles.imageContainer }>
+  
+         <Image 
+             source={{ uri }}
+             style={ styles.posterImage }
+         />
+     </View> 
+
+    <View style={ styles.marginContainer }>
+      <Text style={ styles.subTitle }>{ movie.original_title }</Text>
+      <Text style={ styles.title }>{ movie.title }</Text>
+    </View>
+
+   </ScrollView>
+  )
+````
+* Se agregan los estilos, para que la imagen se vea un 70% de la pantalla, y con bordes redondeados, ademas de algunos estilos adicionales. 
+````
+const styles = StyleSheet.create({
+  imageContainer:{
+    width: '100%',
+    height: screenHeight * 0.7,
+    shadowColor: "#000",
+    borderRadius: 18,
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.24,
+    shadowRadius: 7,
+
+    elevation: 10,
+  },
+  posterImage:{
+    flex: 1,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  marginContainer: {
+    marginHorizontal: 20,
+    marginTop: 20
+  },
+  subTitle: {
+    fontSize: 16,
+    opacity: 0.6,
+    color: 'black'
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black'
+  }
+});
+````
+----
