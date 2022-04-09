@@ -24,11 +24,13 @@ export const DetailScreen = ( { route }:Props ) => {
       
      <View style={ styles.imageContainer }>
        {/* Me sirve para poner una imagen en el Status Bar  barStyle="light-content"*/}
- 
+        <View style={ styles.imageBorder}>
          <Image 
              source={{ uri }}
              style={ styles.posterImage }
          />
+
+        </View>
      </View> 
 
     <View style={ styles.marginContainer }>
@@ -43,6 +45,7 @@ export const DetailScreen = ( { route }:Props ) => {
 const styles = StyleSheet.create({
   imageContainer:{
     // overflow: 'hidden',
+    borderBottomLeftRadius: 75,
     width: '100%',
     height: screenHeight * 0.7,
     shadowColor: "#000",
@@ -56,10 +59,15 @@ const styles = StyleSheet.create({
 
     elevation: 10,
   },
+  imageBorder:{
+    flex: 1,
+    overflow: 'hidden',
+    borderBottomLeftRadius: 75,
+    // borderBottomRightRadius: 25,
+  },
   posterImage:{
     flex: 1,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
+    
   },
   marginContainer: {
     marginHorizontal: 20,

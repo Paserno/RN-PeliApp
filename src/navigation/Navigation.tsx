@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { DetailScreen } from '../screens/DetailScreen';
 import { Movie } from '../interface/movieInterface';
@@ -14,8 +14,12 @@ const Stack = createStackNavigator<RootStackParams>();
 export const Navigation = () => {
   return (
     <Stack.Navigator
+    
       screenOptions={{
         headerShown: false,
+        gestureEnabled: true,
+        gestureDirection: 'vertical',
+        cardStyleInterpolator: CardStyleInterpolators.forRevealFromBottomAndroid,
         cardStyle:{
           backgroundColor: 'white'
         }
@@ -26,3 +30,11 @@ export const Navigation = () => {
     </Stack.Navigator>
   );
 }
+
+/* 
+  forHorizontalIOS 
+  forVerticalIOS 
+  forModalPresentationIOS 
+  forFadeFromBottomAndroid 
+  forRevealFromBottomAndroid 
+*/

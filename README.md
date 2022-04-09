@@ -681,3 +681,28 @@ const styles = StyleSheet.create({
 });
 ````
 ----
+### 10,5.- Animación en Stack Navigation
+Se le agrega una animaciones al momento de abrir el componente __DetailScreen__.
+
+Pasos a Seguir:
+* Se le agrega algunas propiedades adicionales al Stack Navigation en `navigation/Navigation.tsx`.
+
+En `navigation/Navigation.tsx`
+* En el stack navigation le agregamos algunas propiedades nuevas.
+  * `gestureEnabled` esta propiedad por defecto android la tiene en false, esta vez la activamos para poder cerrar el stack de otra forma. (_Arrastrando el dedo de una esquina de la pantalla_)
+  * `gestureDirection` en `vertical` permite cerrar el stack arrastrando el dedo por la esquina superior de la pantalla.
+  * `cardStyleInterpolator` con este elemento podemos agregar animaciones, no olvidar importar `CardStyleInterpolators`, para tener las diferentes animaciones disponibles. (_[Animaciones aquí](https://reactnavigation.org/docs/stack-navigator/#cardstyleinterpolators)_)
+````
+<Stack.Navigator
+  screenOptions={{
+    headerShown: false,
+    gestureEnabled: true,
+    gestureDirection: 'vertical',
+    cardStyleInterpolator: CardStyleInterpolators.forRevealFromBottomAndroid,
+    cardStyle:{
+      backgroundColor: 'white'
+    }
+  }}
+>
+````
+----
