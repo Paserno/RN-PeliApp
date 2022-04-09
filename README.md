@@ -547,3 +547,69 @@ const { nowPlaying, popular, topRated, upcoming, isLoading } = useMovies();
 <HorizontalSlider title="Próximamente" movies={ upcoming } />
 ````
 ----
+### 9.- Navegar Pantalla Detalle
+En este punto se crea el botón que hará la navegación hacia el componente __DetailScreen__ y pasarle las propiedades.
+
+Pasos a Seguir: 
+* Agregamos tipado a la navegación hacia cada componente screen en __Navigation__.
+* Se modifico el componente __MoviePoster__ para establecerlo como un botón que realizará la navegación hacia el componente __DetailScreen__ y pasarle los argumentos.
+* Preparamos el componente para recibir las propiedades en __DetailScreen__.
+
+En `navigation/Navigation.tsx`
+* Agregue el tipado que recibirá los componentes screens.
+* Ademas de implementarlo en el Stack.
+````
+export type RootStackParams = {
+  HomeScreen: undefined;
+  DetailScreen: Movie;
+}
+
+const Stack = createStackNavigator<RootStackParams>();
+````
+En `components/MoviePoster.tsx`
+* Importamos useNavigation, para luego implementarlo.
+````
+const navigation = useNavigation();
+````
+* Cambiamos el return del componente por un `<TouchableOpacity>` y le agregamos las propiedades que se tenian anteriormente en el `View`, ademas de un `activeOpacity` y un `onPress` que hará la navegación hacia el otro componente __DetailScreen__, mandandole argumentos.
+````
+return (
+  <TouchableOpacity 
+      onPress={ () => navigation.dispatch(
+          CommonActions.navigate({
+              name: 'DetailScreen',  
+              params: movie,
+          })
+      ) }
+      activeOpacity={ 0.8 }
+      style={{
+          width,
+          height,
+          marginHorizontal: 8
+      }}
+  >
+      <View style={ styles.imageContainer }>
+          <Image 
+              source={{ uri }}
+              style={ styles.image }
+          />
+
+      </View>
+  </TouchableOpacity>
+````
+En `screen/DetailScreen.tsx`
+* Creamos una interface que nos ayudará con el tipado en el componente.
+````
+interface Props extends StackScreenProps<RootStackParams, 'DetailScreen'> {}
+````
+* Recibimos por las propiedades `{ route }`.
+````
+export const DetailScreen = ( { route }:Props ) => { ... }
+````
+* Recibimos los params que fueron enviados por el componente __MoviePoster__ y lo almacenamos en una constante, para finalmente imprimir por consola.
+````
+const movies = route.params;
+
+console.log(movies);
+````
+----
