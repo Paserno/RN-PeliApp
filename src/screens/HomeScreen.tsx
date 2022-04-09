@@ -1,6 +1,6 @@
 // import { CommonActions, useNavigation } from '@react-navigation/native';
 import React from 'react'
-import { View, ActivityIndicator, Dimensions, FlatList, Text, ScrollView } from 'react-native';
+import { View, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Carousel from 'react-native-snap-carousel';
@@ -14,7 +14,7 @@ const { width: windowWidth } = Dimensions.get('window');
 
 export const HomeScreen = () => {
 
-  const { peliculasEnCine, isLoading } = useMovies();
+  const { nowPlaying, popular, topRated, upcoming, isLoading } = useMovies();
   const { top } = useSafeAreaInsets();
 
   if ( isLoading ){
@@ -32,7 +32,7 @@ export const HomeScreen = () => {
         {/* Carrusel Principal */}
         <View style={{ height: 440}}>
           <Carousel 
-            data={ peliculasEnCine }
+            data={ nowPlaying }
             renderItem={ ({ item }: any) => <MoviePoster movie={ item }/> }
             sliderWidth={ windowWidth }
             itemWidth={ 300 }
@@ -40,9 +40,9 @@ export const HomeScreen = () => {
           />
         </View>
         {/* Películas Populares */}
-        <HorizontalSlider title="En cine" movies={ peliculasEnCine } />
-
-       
+        <HorizontalSlider title="Populares" movies={ popular } />
+        <HorizontalSlider title="Más Votados" movies={ topRated } />
+        <HorizontalSlider title="Próximamente" movies={ upcoming } />
 
       </View>
     </ScrollView>

@@ -463,3 +463,87 @@ import { HorizontalSlider } from '../components/HorizontalSlider';
 <HorizontalSlider title="En cine" movies={ peliculasEnCine } />
 ````
 ----
+### 8.- Múltiples Peticiones Simultaneas
+En este punto se crea varias peticiones a la API __The MovieDB__, para mostrar diferentes carruseles con las películas.
+
+Paso a Seguir: 
+* Se modifica el CustomHook __useMovies__, para realizar multiples peticiones hacia la API, y luego mandar la información en un state.
+* Se arregla la implementación de __useMovies__ en el componente __HomeScreen__.
+
+En `hooks/useMovies.tsx`
+* Se implemento una nueva interface para el useState nuevo que se usará.
+````
+interface MoviesState {
+  nowPlaying: Movie[];
+  popular: Movie[];
+  topRated: Movie[];
+  upcoming: Movie[];
+}
+````
+* Se eliminan los anteriores useState, para agregar un nuevo state que maneje el contenido de la API.
+* Se le asigna valores como un arreglo vacío para no tener problemas con el tipado.
+````
+const [moviesState, setMoviesState] = useState<MoviesState>({
+  nowPlaying: [],
+  popular: [],
+  topRated: [],
+  upcoming: [],
+});
+````
+* Realizamos diferentes peticiones a la función `movieDB` que se conecta con la API, y le pasamos la ruta que se necesita.
+* Para luego realizar un `Propise.all()` que traiga multiples promesas en un arreglo, esto dando un resultado asíncrono con todas las peticiones.
+* Finalmente asignando estos valores al __useState__.
+````
+const getMovie = async() => {
+    
+    const nowPlayingPromise = movieDB.get<MovieDBResponse>('/now_playing');
+    const popularPromise    = movieDB.get<MovieDBResponse>('/popular');
+    const topRatedPromise   = movieDB.get<MovieDBResponse>('/top_rated');
+    const upcomingPromise   = movieDB.get<MovieDBResponse>('/upcoming');
+
+    const resps = await Promise.all([
+      nowPlayingPromise,
+      popularPromise,
+      topRatedPromise,
+      upcomingPromise
+    ]);
+
+    setMoviesState({
+      nowPlaying: resps[0].data.results,
+      popular: resps[1].data.results,
+      topRated: resps[2].data.results,
+      upcoming: resps[3].data.results,
+  })
+    
+    setIsLoading( false );
+}
+````
+* En el return del Hook utilizamos el operador spread para enviar todos los valores de `...moviesState`.
+````
+return {
+  ...moviesState,
+  isLoading,
+}
+````
+En `screens/HomeScreen.tsx`
+* Modificamos lo que desestructuramos del __useMovies__, para tener todos los elementos.
+````
+const { nowPlaying, popular, topRated, upcoming, isLoading } = useMovies();
+````
+* Finalmente mandamos la `data` en el carrusel y en nuestro componente __HorizontalSlider__ enviamos la movie del contenido del CustomHook __useMovies__.
+````
+<View style={{ height: 440}}>
+  <Carousel 
+    data={ nowPlaying }
+    renderItem={ ({ item }: any) => <MoviePoster movie={ item }/> }
+    sliderWidth={ windowWidth }
+    itemWidth={ 300 }
+    inactiveSlideOpacity={ 0.9 }
+  />
+</View>
+
+<HorizontalSlider title="Populares" movies={ popular } />
+<HorizontalSlider title="Más Votados" movies={ topRated } />
+<HorizontalSlider title="Próximamente" movies={ upcoming } />
+````
+----
