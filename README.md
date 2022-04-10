@@ -755,3 +755,58 @@ export const useMovieDetails = ( movieId: number ) => {
 }
 ````
 ----
+### 12.- Cargar Información para DetailScreen
+En este punto se realizará la carga de información necesaria para proximamente utilizarlo en el componente screen.
+
+Pasos a Seguir:
+* Se implementa una nueva interface del casting de los actores, para mostrar información adicional, utilizando nuevamente __[Quick Type](https://quicktype.io)__ para la generación de tipado.
+* Se crearon las diferentes promesas para la toma de información necesaria para luego mostrarlo en el componente __DetailScreen__.
+* Implementación del CustomHook __useMovieDetails__ en el componente __DetailScreen__.
+
+En `hook/useMovieSceen.tsx`
+* Modificamos la interface.
+````
+interface MovieDetails {
+    isLoading: boolean;
+    movieFull?: MovieFull;
+    cast: Cast[];
+}
+````
+* Inicializamos los valores del useState.
+````
+const [state, setState] = useState<MovieDetails>({
+        isLoading: true,
+        movieFull: undefined,
+        cast: []
+    });
+````
+* Modificamos la función `getMovieDetials`, para obtener 2 promesas agregandole el tipado correspondiente. (_interfaces_)
+* Con `Promise.all()` obtenemos las 2 promesas a la vez y se lo entregamos al arreglo que creamos.
+* Para luego entregar al useState los valores.
+````
+const getMovieDetials = async() => {
+
+  const movieDetailsPromise = movieDB.get<MovieFull>(`/${ movieId }`);
+  const castPromise = movieDB.get<CreditsResponse>(`/${ movieId }/credits`);
+
+  const [ movieDetailsResp, castResp ] = await Promise.all([ movieDetailsPromise, castPromise]);
+
+  setState({
+      isLoading: false,
+      movieFull: movieDetailsResp.data,
+      cast: castResp.data.cast
+  })
+}
+````
+* Utilizamos el operador spread para retornar todos los elementos del state.
+````
+return {
+  ...state
+}
+````
+En `screens/DetailScreen.tsx`
+* Ahora desestructuramos los valores que viene del CustomHook, ademas de entregarle por argumento el `movie.id`.
+````
+const { isLoading, cast, movieFull } = useMovieDetails( movie.id );
+````
+----
