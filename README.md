@@ -9,7 +9,7 @@ Elementos Utilizados:
   * __[Stack Navigation](https://reactnavigation.org/docs/stack-navigator)__
 * __[Axios](https://yarnpkg.com/package/axios)__
 * __[RN Snap Carousel](https://github.com/meliorence/react-native-snap-carousel)__
-
+* __[Currency Formatter](https://github.com/smirzaei/currency-formatter#readme)__
 
 
 ----
@@ -808,5 +808,85 @@ En `screens/DetailScreen.tsx`
 * Ahora desestructuramos los valores que viene del CustomHook, ademas de entregarle por argumento el `movie.id`.
 ````
 const { isLoading, cast, movieFull } = useMovieDetails( movie.id );
+````
+----
+### 13.- Detalle de Películas
+En este punto nos encontramos en la constucción del diseño de como se mostrarán los elementos en el componente __DetailScreen__.
+
+Pasos a Seguir: 
+* Instalamos un formateador de numeros __[Currency Formatter](https://github.com/smirzaei/currency-formatter#readme)__
+* Se construye un componente nuevo llamado __MovieDetails__ que mostrará el contenido del componente screen __DetailScreen__.
+* Le pasamos los argumentos que necesita __MovieDetails__.
+
+En `components/MovieDetails.tsx`
+* Importamos diferens elementos React, React Native, `currencyFormatter` para formatear los numeros, `Icon` para mostrar iconos y 2 elementos de tipado.
+````
+import React from 'react'
+import { Text, View } from 'react-native';
+import currencyFormatter from 'currency-formatter';
+
+
+import Icon  from 'react-native-vector-icons/Ionicons';
+import { MovieFull } from '../interface/movieInterface';
+import { Cast } from '../interface/creditsInterface';
+````
+* Creamos la interface para las propiedades que recibirá el componente.
+````
+interface Props {
+  movieFull: MovieFull;
+  cast: Cast[];
+}
+````
+* Creamos el componente llamado __MovieDetails__ que recíbe 2 propiedades `movieFull` y `cast`.
+````
+export const MovieDetails = ({movieFull, cast}: Props) => {...}
+````
+* Se realiza la carpinteria de lo que se va a mostrar con los diferentes `View`.
+  * Agregamos un icono con el `Text` de las votaciones, ademas realizamos un `.map()` para extraer todos los generos y mostrarlos.
+  * Mostramos un titulo con la historia.
+  * Finalmente mostramos el presupuesto con el formateo, gracias a `currencyFormatter`.
+````
+return (
+  <View style={{ marginHorizontal: 20 }}>
+      <View style={{ flexDirection: 'row' }}>
+          <Icon 
+              name='star-outline'
+              color='gray'
+              size={ 16 }
+          />
+
+          <Text> { movieFull.vote_average }</Text>
+              
+          <Text style={{ marginLeft: 5}}>
+              - { movieFull.genres.map( g => g.name).join(', ') }
+          </Text>
+      </View>
+
+      <Text style={{ fontSize: 23, marginTop: 10, fontWeight: 'bold', color:'black' }}>
+          Historia
+      </Text>
+      <Text style={{ fontSize: 16 }}>
+          { movieFull.overview }
+      </Text>
+
+      <Text style={{ fontSize: 23, marginTop: 10, fontWeight: 'bold', color:'black' }}>
+          Presupuesto
+      </Text>
+      <Text style={{ fontSize: 18 }}>
+          { currencyFormatter.format(movieFull.budget, { code:'USD'}) }
+      </Text>
+
+  </View>
+)
+````
+En `screens/DetailScreen.tsx`
+* Creamos una condición, en el caso que `isLoading` se true mostrará `<ActivityIndicator />` que es un indicador de carga, en el caso que este en false `isLoading` se mostrará el contenido.
+* El contenido se muestra gracias al nuevo componente agregado __MovieDetails__, el cual se le pasan los parametros que necesita.
+````
+{
+  (isLoading) 
+      ? <ActivityIndicator size={ 35 } color='grey' style={{ marginTop: 20 }}/>
+      : <MovieDetails movieFull={ movieFull! } cast={ cast }/>
+}
 ````
 ----
