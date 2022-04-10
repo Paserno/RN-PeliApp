@@ -706,3 +706,52 @@ En `navigation/Navigation.tsx`
 >
 ````
 ----
+### 11.- CustomHook - useMovieDetails
+En este punto se realizará la implementación de un nuevo Custom Hook para mostrar el manejo del contenido que se mostrará en el componente __DetialScreen__
+
+Pasos a Seguir:
+* Se implementa una nueva interface graicas a __[Quick Type](https://quicktype.io)__, extrayendo el contenido de la API y transformandola en una nueva interface que nos ayudará con el tipado.
+* Se crea el CustomHook __useMovieDetails__.
+
+En `hooks/useMovieDetails.tsx`
+* Se importan diferentes elementos como los hooks de react, `moveDB` para extraer el contenido de la API y `MovieFull` la nueva interface que se utilizará para ayudar en el tipado.
+````
+import { useState, useEffect } from 'react';
+import movieDB from '../api/movieDB';
+import { MovieFull } from '../interface/movieInterface';
+````
+* Creamos una interface que tendrá el CustomHook.
+````
+interface MovieDetails {
+    isLoading: boolean;
+    movieFull: MovieFull;
+    cast: any[];
+}
+````
+* Se crea el CustomHook llamado __useMovieDetails__ que recibe por parametros `movieId`.
+* Creamos un __useState__ que le agregamos la interface.
+* Creamos la función `getMovieDetails` asíncrona, que recibirá el contenido de la API.
+* Agregamos un __useEffect__ que disparará la función recién mencionada.
+* Finalmente retornando el estado.
+````
+export const useMovieDetails = ( movieId: number ) => {
+  
+    const [state, setState] = useState<MovieDetails>();
+
+    const getMovieDetials = async() => {
+        const resp = await movieDB.get<MovieFull>(`/${ movieId }`);
+
+        console.log(resp.data.overview);
+    }
+
+    useEffect(() => {      
+        getMovieDetials();
+
+    }, [])
+    
+    return {
+        state,
+    }
+}
+````
+----

@@ -4,6 +4,7 @@ import { View, Image, StyleSheet, Dimensions, StatusBar, ScrollView, Text } from
 import { RootStackParams } from '../navigation/Navigation';
 
 import Icon from 'react-native-vector-icons/Ionicons'
+import { useMovieDetails } from '../hooks/useMovieDetails';
 
 const {height: screenHeight }= Dimensions.get('screen');
 
@@ -14,7 +15,7 @@ export const DetailScreen = ( { route }:Props ) => {
   const movie = route.params;
   const uri = `https://image.tmdb.org/t/p/w500${ movie.poster_path }`;
 
-  
+  useMovieDetails( movie.id );
 
   return (
    <ScrollView>
