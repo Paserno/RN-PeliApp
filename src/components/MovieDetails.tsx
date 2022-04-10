@@ -1,11 +1,12 @@
 import React from 'react'
-import { Text, View } from 'react-native';
+import { Text, View, FlatList } from 'react-native';
 import currencyFormatter from 'currency-formatter';
 
 
 import Icon  from 'react-native-vector-icons/Ionicons';
 import { MovieFull } from '../interface/movieInterface';
 import { Cast } from '../interface/creditsInterface';
+import { CastItem } from './CastItem';
 
 interface Props {
     movieFull: MovieFull;
@@ -15,10 +16,11 @@ interface Props {
 export const MovieDetails = ({movieFull, cast}: Props) => {
   return (
         /* Detalles */
-    <View style={{ marginHorizontal: 20 }}>
+    <View >
+        <View style={{ marginHorizontal: 20 }}>
         <View style={{ flexDirection: 'row' }}>
             <Icon 
-                name='star-outline'
+                name='star'
                 color='gray'
                 size={ 16 }
             />
@@ -45,9 +47,28 @@ export const MovieDetails = ({movieFull, cast}: Props) => {
         <Text style={{ fontSize: 18 }}>
             { currencyFormatter.format(movieFull.budget, { code:'USD'}) }
         </Text>
+        </View>
 
+        {/* Casting */}
+        <View style={{ marginTop: 10, marginBottom: 100}}>
+            <Text style={{ fontSize: 23, marginTop: 10, fontWeight: 'bold', color:'black', marginHorizontal: 20 }}>
+                Actores
+            </Text>
+
+            <FlatList 
+                data={ cast }
+                keyExtractor={ (item) => item.id.toString() }
+                renderItem={ ({ item }) => <CastItem actor={ item } />}
+                horizontal={ true }
+                showsHorizontalScrollIndicator={ false }
+                style={{ marginTop: 10, height: 70 }}
+            />
+            
+            
+        </View>
     </View>
 
-         /* Casting */
+         
+         
   )
 }

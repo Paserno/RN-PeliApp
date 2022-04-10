@@ -890,3 +890,119 @@ En `screens/DetailScreen.tsx`
 }
 ````
 ----
+### 14.- Lista de Actores
+En este punto se creará una lista de actores que participaron en la película, ademas de un botón adicional.
+
+Pasos a Seguir:
+* Creamos un nuevo componente __CastItem__ que manejará cada item que se mostrará.
+* El componente __MovieDetails__ tendra que mostrar el componente __CastItem__ como una lista con `FlatList`.
+* En el componente __DetailScreen__ agregamos una flecha para volver al antiguo componente.
+
+En `components/CastItem.tsx`
+* Importamos React, `Cast` para el tipado y elementos de __React Native__.
+````
+import React from 'react';
+import { Cast } from '../interface/creditsInterface';
+import { Text, View, Image, StyleSheet } from 'react-native';
+````
+* Creamos una interface que será para las propiedades del componente.
+````
+interface Props{
+  actor: Cast;
+}
+````
+* Se crea el componente __CastItem__ que recibe la propiedad `actor` con ayuda de la interface que recíen se creo para el tipado.
+* Usamos el path para mostrar las imagenes de los actores. 
+````
+export const CastItem = ({ actor }: Props) => {
+
+  const uri = `https://image.tmdb.org/t/p/w500${ actor.profile_path }`;
+  ...
+}
+````
+* Realizamos la construcción del componente, creamos una condición en el caso que `actor.profile_path` venga se mostrara la imagen.
+* Mostramos el nombre del actor, ademas del personaje que interpreta con algunos estilos.
+````
+return (
+  <View style={ styles.container }>
+      {
+          actor.profile_path && (
+              <Image 
+                  source={{ uri }}
+                  style={{ width: 50, height: 50, borderRadius: 10}}
+              />
+          )
+      }
+      
+
+      <View style={ styles.actorInfo }>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black'}}>
+              { actor.name }
+          </Text>
+          <Text style={{ fontSize: 16, opacity: 0.5 , color: 'black'}}>
+              { actor.character }
+          </Text>
+      </View>
+  </View>
+)
+````
+* Se agregaron algunos estilos con sombra y algunos margenes.
+````
+const styles = StyleSheet.create({
+  container: {
+      flexDirection: 'row',
+      backgroundColor: 'white',
+      borderRadius: 10,
+      height: 50,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 10,
+      },
+      shadowOpacity: 0.24,
+      shadowRadius: 7,
+
+      elevation: 10,
+      marginLeft: 20,
+      paddingRight: 15,
+  },
+  actorInfo: {
+      marginLeft: 10,
+      marginTop: 3
+  }
+});
+````
+En `components/MovieDetails.tsx`
+* Se le agrega un `View` dedicado a los actores, mostramos el texto y con el contenido con `<FlatList />`.
+* Con el `<FlatList />` lo mostramos horizontalmente para que no emita un error ya que no tenemos un `<ScrollView>`, ademas de unos estilos y con el contenido que viene del componente __CastlItem__.
+````
+<View style={{ marginTop: 10, marginBottom: 100}}>
+  <Text style={{ fontSize: 23, marginTop: 10, fontWeight: 'bold', color:'black', marginHorizontal: 20 }}>
+      Actores
+  </Text>
+
+  <FlatList 
+    data={ cast }
+    keyExtractor={ (item) => item.id.toString() }
+    renderItem={ ({ item }) => <CastItem actor={ item } />}
+    horizontal={ true }
+    showsHorizontalScrollIndicator={ false }
+    style={{ marginTop: 10, height: 70 }}
+  />
+</View>
+````
+En `screen/DetailScreen.tsx`
+* Se crea una flecha blanca que retorna al anterior componente.
+````
+<TouchableOpacity 
+  style={ styles.backBotton }
+  onPress={ () => navigation.goBack()}
+>
+  <Icon 
+    name='arrow-back-outline'
+    color='white'
+    size={ 60 }
+  /> 
+</TouchableOpacity>
+````
+----
