@@ -17,6 +17,7 @@ import { useMovieDetails } from '../hooks/useMovieDetails';
 import { MovieDetails } from '../components/MovieDetails';
 import Icon  from 'react-native-vector-icons/Ionicons';
 import { TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const {height: screenHeight }= Dimensions.get('screen');
@@ -30,15 +31,41 @@ export const DetailScreen = ( { route, navigation }:Props ) => {
 
   const { isLoading, cast, movieFull } = useMovieDetails( movie.id );
 
+  
+     {/* TODO: Degradado Proximamente */}
+     {/* <View style={{ 
+       backgroundColor:'rgba(0, 0, 0, 0.3)',
+       height: 50,
+       width: 500,
+       position: 'absolute',
+       zIndex: 2}}/>  */}
+
+      //  <LinearGradient 
+      //       colors={[ 'rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.3)', 'transparent' ]}
+      //       style={{...StyleSheet.absoluteFillObject}}
+      //   />
   return (
    <ScrollView>
-     {/* TODO: Degradado Proximamente */}
-     {/* <View style={{ backgroundColor:'rgba(0, 0, 0, 0.3)', height: 50, width: 500, position: 'absolute', zIndex: 2,}}/> */}
-     <StatusBar translucent barStyle="light-content" backgroundColor="rgba(0, 0, 0, 0.3)" />
+     <StatusBar translucent barStyle="light-content" backgroundColor="transparent" />
+      
+      <View
+      style={{ 
+        height: 150,
+        width: 500,
+        position: 'absolute',
+        zIndex: 2}}
+        >
+        <LinearGradient 
+            colors={[  'rgba(0, 0, 0, 0.9)','rgba(0, 0, 0, 0.5)', 'rgba(0, 0, 0, 0.3)', 'transparent', 'transparent' ]}
+            style={{...StyleSheet.absoluteFillObject}}
+        />
+
+      </View>
+       
 
       
      <View style={ styles.imageContainer }>
-       {/* Me sirve para poner una imagen en el Status Bar  barStyle="light-content"*/}
+       {/* Me sirve para poner una imagen en el Status Bar  barStyle="light-content" */}
         <View style={ styles.imageBorder}>
          <Image 
              source={{ uri }}

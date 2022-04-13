@@ -11,6 +11,9 @@ Elementos Utilizados:
 * __[RN Snap Carousel](https://github.com/meliorence/react-native-snap-carousel)__
 * __[Currency Formatter](https://github.com/smirzaei/currency-formatter#readme)__
 
+* __[Gradiante Lineal](https://github.com/react-native-linear-gradient/react-native-linear-gradient)__
+* __[Colores de Imagen](https://github.com/osamaqarem/react-native-image-colors)__
+
 
 ----
 Recordar que si se desea ejecutar esta aplicación, deben de reconstruir los módulos de node así:
@@ -1004,5 +1007,319 @@ En `screen/DetailScreen.tsx`
     size={ 60 }
   /> 
 </TouchableOpacity>
+````
+----
+### 15.- Gradiente Animado - ContextAPI
+En este punto se usarán dos librerias una para el gradiente del color y otra para interpretar colores de una imagen.
+
+Pasos a Seguir: 
+* Instalar un __[Gradiante Lineal](https://github.com/react-native-linear-gradient/react-native-linear-gradient)__.
+* Instalar un interpretador de __[Colores de Imagen](https://github.com/osamaqarem/react-native-image-colors)__.
+* Crear CustomHook para manejar la animación y agregarle fundiones que aumenta y disminuyen la opacidad en `hooks/useFade.tsx`.
+* Creamos un contexto para luego manejar dos estado globales de colores en la aplicación en `context/GradientContext.tsx`.
+* Se aplica en el componente mas alto de la aplicación el contexto nuevo, para manejarlo en toda la aplicación `App.tsx`.
+* Se crea un helper, que gracias a la instalación de una libreria, obtener colores en base una imagen.
+* Se crea un componente nuevo que realiza el gradiente segun lo que reciba en el contexto global, este se aloja en `components/GradientBackground.tsx`.
+* En el componente __HomeScreen__ creamos una nueva función que manda el URI de la imagen que esta seleccionada en el carrusel.
+
+En `hooks/useFade.tsx`
+* Importamos el useRef de react y Animated de react native.
+````
+import { useRef } from 'react'
+import { Animated } from 'react-native';
+````
+* Creamos el CustomHook llamado __useFade__.
+* Utilizamos useRef para crear un nuevo valor para la animación, en este caso manejaremos el valor de opacidad en 0.
+* Creamos una función llamada `fadeIn` que puede recibir un `callback` en las propiedades, y maneja la opacidad.
+  * Con `Animated.timing` creamos una animación, que su valor sera 1, con duración y sera acelarado por hardware con `useNativeDriver`.
+  * Lo iniciamos con `start()` que tambien puede recibir un `callback` en sus argumentos o null.
+* Se crea una función llamada `fadeOut` que puede recibir una propiedad llamada `duration` que su valor por defecto es de 300 y maneja la opacidad.
+  * Su valor es 0, la duración puede ser recibida por las propiedades y aceleración por hardware.
+  * Esta es iniciada cuando es llamada la función, graicas a `.start()`.
+* Finalmente retornamos la `opacity` y las dos funciónes.
+````
+export const useFade = () => {
+
+    const opacity = useRef( new Animated.Value(0) ).current;
+
+    const fadeIn = ( callback?: Function ) => {
+  
+      Animated.timing(
+        opacity,
+        {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true
+        }
+      ).start( () => callback ? callback() : null );
+    }
+  
+    const fadeOut = ( duration: number = 300) => {
+      Animated.timing(
+        opacity,
+        {
+          toValue: 0,
+          duration,
+          useNativeDriver: true
+        }
+      ).start();
+    }
+
+  return {
+    opacity, 
+    fadeIn,
+    fadeOut
+  }
+}
+````
+En `context/GradientContext.tsx`
+* Se importa react, la creación del context y un useState.
+````
+import React, { createContext, useState } from 'react';
+````
+* Se crea la primera interface que seran los valores que manejaran los __useState__.
+````
+interface ImageColors {
+  primary: string;
+  secondary: string;
+}
+````
+* La segunda interface es del context, el cual retornará los dos estados y ademas 2 funciones.
+````
+interface ContextProps {
+  colors: ImageColors;
+  prevColors: ImageColors;
+  setMainColors: (colors: ImageColors) => void;
+  setPrevMainColors: (colors: ImageColors) => void;
+}
+````
+* Creamos el context y le agregamos el tipado de la interface.
+````
+export const GradientContext = createContext({} as ContextProps);
+````
+* Creamos el componente proveedor llamado __GradientProvider__ que por propiedad tendra los `children`.
+* El primer __useState__ con los valores `[colors, setColors]` manejará la animación en la aplicación, recibiran los colores y luego se le aplicará una opacidad.
+* El segundo __useState__ será el color que se demorará en aparecer pero se mantendra permanentemente, sin ninguna opacidad.
+* Se crean 2 funciónes que modifican los dos estados recién mencionados.
+* Finalmente se retorna el context con sus valores que fueron tipados con la segunda interface mostrada, ademas de retornar los `{ children }` para que se muestren los elementos hijos.
+````
+export const GradientProvider = ({ children }:any) => {
+
+    const [colors, setColors] = useState<ImageColors>({
+        primary: 'transparent',
+        secondary: 'transparent'
+    });
+
+    const [prevColors, setPrevColors] = useState<ImageColors>({
+        primary: 'transparent',
+        secondary: 'transparent'
+    });
+
+    const setMainColors = (colors: ImageColors) => {
+        setColors( colors );
+    }
+
+    const setPrevMainColors = (colors: ImageColors) => {
+        setPrevColors( colors );
+    }
+
+    return(
+        <GradientContext.Provider value={{
+            colors,
+            prevColors,
+            setMainColors,
+            setPrevMainColors
+        }}>
+            { children }
+        </GradientContext.Provider>
+    )
+}
+````
+En `App.tsx`
+* Importamos el componente proveedor __GradientProvider__.
+````
+...
+import { GradientProvider } from './src/context/GradientContext';
+````
+* Se crea un componente llamado __AppState__ que tiene en las propiedades `{ children }`.
+* Este componente retornará el componente proveedor con su `children`.
+````
+const AppState = ({ children }: any) => {
+
+  return (
+    <GradientProvider>
+      { children }
+    </GradientProvider>
+  )
+} 
+````
+* Finalmente en el componente mas alto agregamos el __AppState__ que envolvera toda la aplicación, de esta manera tener un context global.
+````
+const App = () => {
+  return (
+    <NavigationContainer>
+      <AppState>
+        <Navigation />
+      </AppState>
+    </NavigationContainer>
+  )
+}
+````
+En `helpers/getColores.tsx`
+* Gracias a la instalación de una libreria que nos permite obtener los colores de una imagen, la importamos esta vez `ImageColors`.
+````
+import ImageColors from 'react-native-image-colors';
+````
+* Segun la documentación creamos una función asíncrona que recibirá el `uri` a traves de las propiedades.
+* Utilizamos `ImageColors.getColors()` con el `await` para mandarle el `uri` de las propiedades y un objeto vacío, para almacenar esto en una constante.
+* Creamos 2 variables.
+* Luego sacamos el switch de la libreria, que detecta que dispositivo se esta corriendo la aplicación, para luego extraer los colores y los almacenamos en las variables creadas.
+* Finalmente retornamos esas dos variables como un arreglo.
+````
+export const getImageColores = async( uri: string ) => {
+
+ const colors = await ImageColors.getColors(uri, {});
+
+  let primary;
+  let secondary;
+
+  switch (colors.platform) {
+    case 'android':
+      primary = colors.dominant;
+      secondary = colors.average;
+      break
+    
+    case 'ios':
+      primary = colors.primary;
+      secondary = colors.secondary;
+      break
+
+    default:
+      throw new Error('Unexpected platform key')
+  }
+
+  return [primary, secondary]
+}
+````
+En `components/GradientBackground.tsx`
+* Importamos multiples elementos que se utilizaran.
+  * React y 2 hooks.
+  * Animated para realizar la animación y otros elementos de react native.
+  * `LinearGradient` de la libreria para realizar gradientes.
+  * `GradientContext` importamos el contexto.
+  * CustomHook que se creo para las animaciones __useFade__.
+````
+import React, { useContext, useEffect } from 'react'
+import { Animated, StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { GradientContext } from '../context/GradientContext';
+import { useFade } from '../hooks/useFade';
+````
+* Creamos una interface para el componente.
+````
+interface Props{
+  children: JSX.Element | JSX.Element[]
+}
+````
+* Creamos el componente __GradientBackground__ que por las propiedades tiene sus `{ children }` y se utiliza la interface que se menciono anteriormente.
+````
+export const GradientBackground = ({ children }: Props) => { ... }
+````
+* Se implementa el useContext para utilizar el contexto `GradientContext` que recibiremos algunos elementos de este.
+* Implementamos el CustomHook __useFade__ recibiendo 2 de sus funciones y `opacity`.
+* Implementamos un __useEffect__ que tiene la función `fadeIn()` que le pasamos por argumento un `callback` que se activará, pasandole al `setPrevMainColors()` el `colors` que tenía un color y esto hace que adquiera el mismo color el estado `prevColors`, para luego activar la función `fadeOut(0)` que es agregar la opacidad en 0 ms.
+* Finalmente el useEffect tiene una dependencia que es el `colors`.
+````
+const { colors, prevColors, setPrevMainColors } = useContext(GradientContext);
+const { opacity, fadeIn, fadeOut } = useFade();
+
+useEffect(() => {
+  fadeIn( () => {
+    setPrevMainColors( colors );
+    fadeOut(0);
+  })
+
+}, [ colors ])
+````
+* En el return del componente tenemos un View que abarca todo gracias a `flex` en 1.
+* Tenemos un `<LinearGradient />` que es el color que se agrega despues del que esta en `<Animated.View>` pero permanece permanentemente hasta que se cambie.
+* Se crea un `<Animated.View>` que realizará la animación, con el valor de la opacidad para agregar y desagregar opacidad con las funciones `fadeIn` y `fadeOut`.
+* Encerrado dentro de la animacion esta otro `<LinearGradient />` que mostrará primero los colores cada vez que los detecte y gracias a la animación se vera de una forma mas agradable apareciendo el color.
+* Finalmente mostramos en el componente los `{ children }`.
+````
+return (
+  <View style={{ flex:1 }}>
+      <LinearGradient 
+          colors={[ prevColors.primary , prevColors.secondary ,'white' ]}
+          style={{...StyleSheet.absoluteFillObject}}
+          start={{ x: 0.1, y:0.1 }}
+          end={{ x: 0.5, y: 0.7}}
+      />
+
+      <Animated.View
+        style= {{
+          ...StyleSheet.absoluteFillObject,
+          opacity
+        }}
+      >
+        <LinearGradient 
+          colors={[ colors.primary , colors.secondary ,'white' ]}
+          style={{...StyleSheet.absoluteFillObject}}
+          start={{ x: 0.1, y:0.1 }}
+          end={{ x: 0.5, y: 0.7}}
+      />
+      </Animated.View>
+
+      { children }
+  </View>
+)
+````
+En `screens/HomeScreen.tsx`
+* Se importa el contexto ademas del hook, para establecer el context y traer la función `setMainColors`.
+````
+const { setMainColors } = useContext(GradientContext);
+````
+* Creamos la función `getPosterColors` asíncrona, recibiendo por parametros `index` (_esta función sera ejecutanda en el carrusel_).
+* Conseguimos la posición de la película que esta activa en el carrusel y la almacenamos en la constante `movie`.
+* Luego en el path le agregamos `movie.poster_path` para sacar el __uri__ exacta de la imagen y almacenarla en una constante.
+* Una vez importada la función `getImageColores` que obtiene el color de las imagenes, le mandamos por argumento el `uri` con un await, esperando el valor del arreglo que retorna `[primary, secondary]`.
+* Finalmente se los pasamos a la función que modifica el estado del context `setMainColors()`.
+````
+const getPosterColors = async( index: number ) => {
+  const movie = nowPlaying[index];
+  const uri = `https://image.tmdb.org/t/p/w500${ movie.poster_path }`;
+
+  const [primary = 'transparent', secondary = 'transparent'] = await getImageColores( uri );
+  setMainColors({ primary, secondary})
+}
+````
+* Importamos el useEffect para utilizarlo, que tiene como dependencia los cambios de `nowPlaying`.
+* Realizamos una condición si el largo de `nowPlaying` es mayor a 0, se ejecuta la función `getPosterColors()` en la posición 0, esto quiere decir el primer poster del carrusel.
+````
+useEffect(() => {
+  if( nowPlaying.length > 0){
+    getPosterColors(0)
+  }
+
+}, [ nowPlaying ])
+````
+* Encerramos todo el contenido del componente __HomeScreen__ en el componente __GradientBackground__ que se importo y realiza el gradiente.
+````
+return (
+  <GradientBackground> 
+  ...
+  </GradientBackground> 
+)
+````
+* Finalmente dentro del return del componente __HomeScreen__ específicamente en el `<Carousel>` se implementa `onSnapToItem` esto da la posición del carrusel ejecutando la función `getPosterColors()` cada vez que el carrusel se mueve a un nuevo poster.
+````
+<Carousel 
+  data={ nowPlaying }
+  renderItem={ ({ item }: any) => <MoviePoster movie={ item }/> }
+  sliderWidth={ windowWidth }
+  itemWidth={ 300 }
+  inactiveSlideOpacity={ 0.9 }
+  onSnapToItem={ index => getPosterColors( index ) }
+/>
 ````
 ----
